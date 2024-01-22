@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx hardhat test",
     "compile": "npx hardhat compile",
-    "deploy": ""
+    "deploy": "npx hardhat run --network arbitrumSepolia scripts/deploy.ts"
   },
   "keywords": [],
   "author": "",

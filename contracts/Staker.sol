@@ -1,22 +1,27 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.19;
-import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 // import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./IMintRewards.sol";
+
+// Reward Token Address = 0xAF162873B327C33213D76e0228647b0e2CA9E473
+// Staking Contract Address = 0x2957e5D4C9DE8F1DA7f3Fd74803c9D231d86D704
 
 contract StackingV1 {
-    IERC20 public rewardsToken;
+    
+    IRewardToken public rewardsToken;
 
-    uint64 rewardRate;
+    uint256 rewardRate;
     address owner;
     event Staked(address _staker, uint256 _amount);
     event Unstaked(address _staker, uint256 _amount);
 
     constructor(address _rewardsToken) {
         owner = msg.sender;
-        rewardsToken = IERC20(_rewardsToken);
+        rewardsToken = IRewardToken(_rewardsToken);
     }
 
     mapping(address => uint256) public stakedbalance;
@@ -45,7 +50,25 @@ contract StackingV1 {
         emit Staked(msg.sender, _amount);
     }
 
+    function calculateRewards() internal returns (uint256) {
+        // calc les rewards du staker en function de la size stacké et la durée;
 
+        rewardRate = 1;
+        console.log("rewards =>",rewardRate);
+        uint256 startStake = stakeSnapshot[msg.sender];
+        uint256 withdrawSnap = withdrawSnapShot[msg.sender];
+
+        require(withdrawSnap >= startStake, "Invalid withdrawal snapshot");
+        // calculer la durée pendant la quelle les tokens on eté stackés start ------------------------------- end
+        uint256 duration = withdrawSnap - startStake;
+        console.log("duration =>",duration);
+        // calculer les recompenses
+        uint256 rewardsEarned = duration * rewardRate;
+        console.log("rewardsEarned =>",rewardsEarned);
+        rewardBalance[msg.sender] = rewardsEarned;
+        console.log("REWARDSSSSSS",rewardBalance[msg.sender]);
+        return rewardsEarned;
+    }
 
     function checkStakedBalance() external view returns(uint256) {
         return stakedbalance[msg.sender]; 
@@ -60,7 +83,7 @@ contract StackingV1 {
 
         // mise a jour balance user sur le contract
         stakedbalance[msg.sender] -= _amount;
-        // snapshot withdraw calculate rewards en +
+        // snapshot withdraw 
         withdrawSnapShot[msg.sender] = block.timestamp;
         // transfer tokens from contract => user wallet
         address payable _to = payable(address(msg.sender));
@@ -68,32 +91,20 @@ contract StackingV1 {
         require(sent, "Failed to send Ether");
         // emit event
         emit Unstaked(msg.sender, _amount);
-    }
-    
-    function calculateRewards() internal returns (uint256) {
-        // calc les rewards du staker en function de la size stacké et la durée;
-        rewardRate = uint64(0.03 * 100) / 100;
-
-        uint256 startStake = stakeSnapshot[msg.sender];
-        uint256 withdrawSnap = withdrawSnapShot[msg.sender];
-
-        require(withdrawSnap >= startStake, "Invalid withdrawal snapshot");
-        // calculer la durée pendant la quelle les tokens on eté stackés start ------------------------------- end
-        uint256 duration = withdrawSnap - startStake;
-
-        // calculer les recompenses
-        uint256 rewardsEarned = duration * rewardRate;
-        rewardBalance[msg.sender] = rewardsEarned;
-        return rewardsEarned;
+        
+        // Update rewardBalance[msg.sender] by adding any additional rewards earned since last withdrawal
+        uint256 additionalRewards = calculateRewards();
+        rewardBalance[msg.sender] += additionalRewards;
     }
 
     function claimRewardsEarned() external payable{
-        calculateRewards();
-        uint256 rewardsEarned = rewardBalance[msg.sender];
-        require(rewardsEarned > 0, "no rewards earned");
-        rewardsToken.transfer(msg.sender, rewardsEarned);
+        uint256 totalR = calculateRewards();
+        console.log("total", totalR);
+        require(totalR > 0, "no rewards earned");
+        // mint rewards to the caller of this function 
+        rewardsToken.mintRewards(msg.sender, totalR);
 
-        rewardBalance[msg.sender] -= rewardsEarned;
+        rewardBalance[msg.sender] -= totalR;
         withdrawSnapShot[msg.sender] = 0;
     }
 
