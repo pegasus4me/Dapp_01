@@ -31,7 +31,12 @@ export default function Staker() {
   async function stake() {
     // parse eth => wei 10^8
     const parsed: bigint = parseEther(amount);
-
+    
+    toast({
+      title: "Stake call",
+      description: "transaction sent",
+    })
+    
     try {
       writeContract({
         abi,
@@ -40,19 +45,48 @@ export default function Staker() {
         value: parsed,
       });
     } catch (error: any) {
-      throw new error(error);
+      throw new Error(error);
     }
   }
   function unstake() {
-
-    writeContract({
-      abi, 
-      address : ContractAddress, 
-      args : [parseEther(unstakeAmount)]
+    toast({
+      title: "Unstake call",
+      description: "transaction sent",
     })
+    try {
+   
+      writeContract({
+        abi, 
+        address : ContractAddress,
+        functionName : "withdraw",
+        args : [parseEther(unstakeAmount)]
+      })
+    } catch (error :any ) {
+      throw new Error(error)
+    }
+   
 
   }
-  function claim() {}
+  function claim() {
+
+    toast({
+      title: "Claiming...",
+      description: "transaction sent",
+    })
+    try {
+   
+      writeContract({
+        abi, 
+        address : ContractAddress,
+        functionName :"claimRewardsEarned",
+      })
+    } catch (error :any ) {
+      throw new Error(error)
+    }
+
+  }
+
+
 
   useWatchContractEvent({
     address: ContractAddress,
@@ -68,12 +102,18 @@ export default function Staker() {
     address: ContractAddress,
     functionName: "checkBalance",
   });
-  console.log("staked", stakedBal.data) 
 
+  const rewardsEarned = useReadContract({
+    abi, 
+    address : ContractAddress, 
+    functionName : "checkRewardsEarned"
+  })
+  console.log("d",rewardsEarned.data)
   return (
     <main>
       <div className="p-2 border min-w-[500px] min-h-[600px] rounded-md shadow-sm border-dashed">
         <div>
+          <p className="text-sm font-medium">staked : {stakedBal.data !== undefined ?formatEther(stakedBal.data) : "..."} eth</p>
           <p className="text-center">rewards earneds : 49 RT</p>
           <article className="flex gap-4 flex-col mt-5">
             <Input
@@ -87,7 +127,7 @@ export default function Staker() {
             </p>
             <Button onClick={() => stake()}>stake</Button>
           </article>
-
+                
           <div>
             <Separator />
             <article className="flex gap-4 flex-col mt-5">
@@ -108,8 +148,11 @@ export default function Staker() {
             </article>
           </div>
         </div>
-        <div className="mt-10 flex flex-col">
-          <Button variant={"secondary"} onClick={() => claim()}>
+        <div className="mt-10 flex flex-col gap-3">
+        <Button variant={"secondary"} onClick={() => rewardsEarned}>
+            check earned rewards
+          </Button>
+          <Button variant={"destructive"} onClick={() => claim()}>
             claim rewards
           </Button>
         </div>

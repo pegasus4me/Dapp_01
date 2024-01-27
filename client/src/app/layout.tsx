@@ -4,6 +4,7 @@ import WProvider from "@/wrappers/wagmiProvider";
 import Query from "@/wrappers/Query";
 import Header from "@/components/header";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
             {children}
           </Query>
         </WProvider>
-        
+        <Toaster />
         </body>
     </html>
   );
