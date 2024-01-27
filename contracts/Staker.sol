@@ -18,12 +18,12 @@ contract StackingV1 {
     address owner;
     event Staked(address _staker, uint256 _amount);
     event Unstaked(address _staker, uint256 _amount);
-
+    event Deposit(address indexed sender, uint256 amount);
     constructor(address _rewardsToken) {
         owner = msg.sender;
         rewardsToken = IRewardToken(_rewardsToken);
     }
-
+    mapping(address => uint256) public balances;
     mapping(address => uint256) public stakedbalance;
     mapping(address => uint256) public stakeSnapshot;
     mapping(address => uint256) public withdrawSnapShot;
@@ -33,40 +33,37 @@ contract StackingV1 {
     //     if (msg.sender != owner) revert("not the owner of the contract");
     // }
 
-    function stake(uint256 _amount) external payable {
-        require(_amount > 0, "amount must be higher than zero");
+
+   function stake() external payable {
+        require(msg.value > 0, "amount must be higher than zero");
         require(
-            address(msg.sender).balance >= _amount,
+            address(msg.sender).balance >= msg.value,
             "amount higher than your balance"
         );
-        address payable _to = payable(address(this));
-        // if staker has eth staked in the contract he can call the withdraw function
-        (bool sent, bytes memory data) = _to.call{value: _amount}("");
-        require(sent, "Failed to send Ether");
+    
+        balances[msg.sender] += msg.value;
+        
 
-        stakedbalance[msg.sender] += _amount;
+        stakedbalance[msg.sender] += msg.value;
         stakeSnapshot[msg.sender] = block.timestamp;
 
-        emit Staked(msg.sender, _amount);
+        emit Staked(msg.sender, msg.value);
     }
 
     function calculateRewards() internal returns (uint256) {
         // calc les rewards du staker en function de la size stacké et la durée;
 
         rewardRate = 1;
-        console.log("rewards =>",rewardRate);
         uint256 startStake = stakeSnapshot[msg.sender];
         uint256 withdrawSnap = withdrawSnapShot[msg.sender];
 
         require(withdrawSnap >= startStake, "Invalid withdrawal snapshot");
         // calculer la durée pendant la quelle les tokens on eté stackés start ------------------------------- end
         uint256 duration = withdrawSnap - startStake;
-        console.log("duration =>",duration);
         // calculer les recompenses
         uint256 rewardsEarned = duration * rewardRate;
-        console.log("rewardsEarned =>",rewardsEarned);
         rewardBalance[msg.sender] = rewardsEarned;
-        console.log("REWARDSSSSSS",rewardBalance[msg.sender]);
+     
         return rewardsEarned;
     }
 
@@ -99,7 +96,6 @@ contract StackingV1 {
 
     function claimRewardsEarned() external payable{
         uint256 totalR = calculateRewards();
-        console.log("total", totalR);
         require(totalR > 0, "no rewards earned");
         // mint rewards to the caller of this function 
         rewardsToken.mintRewards(msg.sender, totalR);
@@ -115,6 +111,10 @@ contract StackingV1 {
     // function setRewardsDuration() external {
     //     OnlyOwner();
     // }
+    
+    function checkBalance() external view returns (uint256) {
+        return address(this).balance;
+    }
 
     receive() external payable {}
 }
