@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
-import Balances from "./balances";
 import { useAccount, useWriteContract } from "wagmi";
 import { watchContractEvent } from '@wagmi/core'
 import { useToast } from "@/components/ui/use-toast";
@@ -88,7 +87,7 @@ export default function Staker() {
 
 
 
-  watchContractEvent(config,{
+  watchContractEvent(config as any,{
     address: ContractAddress,
     abi,
     eventName: "Staked",
@@ -104,7 +103,7 @@ export default function Staker() {
     },
   });
 
-  watchContractEvent(config,{
+  watchContractEvent(config as any,{
     address: ContractAddress,
     abi,
     eventName: "Unstaked",

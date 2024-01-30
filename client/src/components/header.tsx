@@ -13,7 +13,6 @@ import { useBalance } from "wagmi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NextFont } from "next/dist/compiled/@next/font";
 import { arbitrumSepolia } from "viem/chains";
-import Balances from "./balances";
 const PS4: NextFont = Press_Start_2P({ weight: ["400"], subsets: ["greek"] });
 const link: string =
   "https://www.npmjs.com/npm-avatar/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdmF0YXJVUkwiOiJodHRwczovL3MuZ3JhdmF0YXIuY29tL2F2YXRhci84NGVkMzFlNTYxMzc2MjZlZjk3NTQ3ZThkNWFmNDIxYz9zaXplPTQ5NiZkZWZhdWx0PXJldHJvIn0._a9R1_dgZOEfousaGBG9lxuok2fZyDyAy3U8CpUFRC4";
