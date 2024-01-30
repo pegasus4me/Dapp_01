@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
+import { Separator } from "@/components/ui/separator"
 import { Press_Start_2P } from "next/font/google";
 import { injected } from "wagmi/connectors";
 import { useBalance } from "wagmi";
@@ -17,7 +18,9 @@ const PS4: NextFont = Press_Start_2P({ weight: ["400"], subsets: ["greek"] });
 const link: string =
   "https://www.npmjs.com/npm-avatar/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdmF0YXJVUkwiOiJodHRwczovL3MuZ3JhdmF0YXIuY29tL2F2YXRhci84NGVkMzFlNTYxMzc2MjZlZjk3NTQ3ZThkNWFmNDIxYz9zaXplPTQ5NiZkZWZhdWx0PXJldHJvIn0._a9R1_dgZOEfousaGBG9lxuok2fZyDyAy3U8CpUFRC4";
 
-export default function Header(): JSX.Element {
+  const tokenAddress:`0x${string}` = "0xAF162873B327C33213D76e0228647b0e2CA9E473"
+
+  export default function Header(): JSX.Element {
   const [address, setAddress] = useState("");
   const { disconnect } = useDisconnect();
   const { connect } = useConnect();
@@ -37,12 +40,14 @@ export default function Header(): JSX.Element {
   }, [addresses, check]);
 
   // get reward token balance for given wallet address
-  //   const rewardToken = useBalance({
-  //     address: address as `0x${string}`,
-  //     token: TokenAddress as `0x${string}` | undefined,
-  //   });
-
-  const EthWalletBalance = useBalance({
+    const rewardToken = useBalance({
+      address: address as `0x${string}`,
+      token: tokenAddress
+    });
+  
+    console.log(rewardToken.data?.formatted)
+  
+    const EthWalletBalance = useBalance({
     address: address as `0x${string}`,
   });
 
@@ -60,7 +65,7 @@ export default function Header(): JSX.Element {
         </Link>
       </div>
 
-      <section className="">
+      <section className="flex items-center">
         <div className="flex items-center gap-3">
           {check === "connected" && (
             <>
@@ -98,6 +103,11 @@ export default function Header(): JSX.Element {
             </p>
           ) : null}
         </div>
+        <Separator orientation="vertical" />
+              <div className="ml-4">
+                <p className="text-sm font-light">earned rewards</p>
+                <p className="text-sm font-medium">{rewardToken.data?.formatted} RT</p>
+              </div>
       </section>
     </header>
   );

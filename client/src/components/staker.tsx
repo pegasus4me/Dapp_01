@@ -108,13 +108,12 @@ export default function Staker() {
     address : ContractAddress, 
     functionName : "checkRewardsEarned"
   })
-  console.log("d",rewardsEarned.data)
   return (
     <main>
       <div className="p-2 border min-w-[500px] min-h-[600px] rounded-md shadow-sm border-dashed">
         <div>
           <p className="text-sm font-medium">staked : {stakedBal.data !== undefined ?formatEther(stakedBal.data) : "..."} eth</p>
-          <p className="text-center">rewards earneds : 49 RT</p>
+          <p className="text-center">rewards earneds : {rewardsEarned.data !== BigInt(0) ? String(rewardsEarned.data) : "..."}</p>
           <article className="flex gap-4 flex-col mt-5">
             <Input
               placeholder="0.0"
