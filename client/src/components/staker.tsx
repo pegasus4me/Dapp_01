@@ -6,14 +6,14 @@ import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
 import Balances from "./balances";
 import { useAccount, useWriteContract } from "wagmi";
-import { useWatchContractEvent } from "wagmi";
+import { watchContractEvent } from '@wagmi/core'
 import { useToast } from "@/components/ui/use-toast";
 import { useReadContract } from "wagmi";
 import { abi } from "../config/abi";
 import { parseEther, formatEther } from "viem";
 import { Separator } from "@/components/ui/separator";
 import { useBalance } from "wagmi";
-
+import { config } from "@/config/config";
 const ContractAddress: `0x${string}` =
   "0xcbE2E1b02Ca51b853ff1F7289054AEeeF7Cf4e09";
 
@@ -88,12 +88,36 @@ export default function Staker() {
 
 
 
-  useWatchContractEvent({
+  watchContractEvent(config,{
     address: ContractAddress,
     abi,
     eventName: "Staked",
     onLogs(logs) {
-      console.log("new logs!", logs);
+      setTimeout(() => {
+        toast({
+          title: "Transactions sent",
+          description: <a href={`https://sepolia.arbiscan.io/tx/${logs[0].transactionHash}`}
+          className="text-lg font medium text-red-400"
+          >tx</a>,
+        })
+      }, 1000)
+    },
+  });
+
+  watchContractEvent(config,{
+    address: ContractAddress,
+    abi,
+    eventName: "Unstaked",
+    onLogs(logs) {
+      setTimeout(() => {
+        toast({
+          title: "Transactions sent",
+          description: <a href={`https://sepolia.arbiscan.io/tx/${logs[0].transactionHash}`}
+          className="text-lg font medium text-red-400"
+          >tx</a>,
+        })
+      }, 1000)
+      
     },
   });
 
@@ -113,7 +137,6 @@ export default function Staker() {
       <div className="p-2 border min-w-[500px] min-h-[600px] rounded-md shadow-sm border-dashed">
         <div>
           <p className="text-sm font-medium">staked : {stakedBal.data !== undefined ?formatEther(stakedBal.data) : "..."} eth</p>
-          <p className="text-center">rewards earneds : {rewardsEarned.data !== BigInt(0) ? String(rewardsEarned.data) : "..."}</p>
           <article className="flex gap-4 flex-col mt-5">
             <Input
               placeholder="0.0"
