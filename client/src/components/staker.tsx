@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { useBalance } from "wagmi";
 import { config } from "@/config/config";
 const ContractAddress: `0x${string}` =
-  "0xcbE2E1b02Ca51b853ff1F7289054AEeeF7Cf4e09";
+  "0x89A22c32a3dD9C794c9B218506d37705ACE5DE61";
 
 export default function Staker() {
   const { toast } = useToast();

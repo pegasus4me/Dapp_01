@@ -53,7 +53,7 @@ contract StackingV1 {
     function calculateRewards() internal returns (uint256) {
         // calc les rewards du staker en function de la size stacké et la durée;
 
-        rewardRate = 1;
+        rewardRate = 1 ether;
         uint256 startStake = stakeSnapshot[msg.sender];
         uint256 withdrawSnap = withdrawSnapShot[msg.sender];
 
