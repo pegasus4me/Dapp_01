@@ -11,3 +11,4 @@ git clone https://github.com/pegasus4me/Dapp_01.git
 cd client
 npx run dev
 ```
+![Alt text](image.png)
